@@ -1,0 +1,164 @@
+# 2022/01/29
+
+## Higher data types
+
+**Ending Keywords**
+
+<!-- livebook:{"reevaluate_automatically":true} -->
+
+```elixir
+IO.inspect([100, 200, 300, 400], width: 0, limit: 2)
+```
+
+**MapSets**
+
+<!-- livebook:{"break_markdown":true} -->
+
+A **MapSet** is the implementation of a set—a store of unique values, where a value can 
+be of **any** type.
+
+```elixir
+# Creating mapset
+days = MapSet.new([:mon, :tue, :wed, 2, 2.5, "string"])
+# $ #MapSet<[2, 2.5, :mon, :tue, :wed, "string"]>
+
+# checking element existence
+MapSet.member?(days, :mon)
+# $ True 
+
+MapSet.member?(days, "string")
+# $ True
+
+MapSet.member?(days, 3)
+# $ False
+
+# Adding elements
+
+days = MapSet.put(days, :thu)
+# $ #MapSet<[2, 2.5, :mon, :thu, :tue, :wed, "string"]>
+```
+
+A **MapSet** is also an **enumerable**, so you can pass it to functions from the Enum module
+
+```elixir
+Enum.each(days, &IO.puts/1)
+# $ 2
+# 2.5
+# mon
+# thu
+# tue
+# wed
+# string
+# :ok
+```
+
+**Times and Dates**
+
+<!-- livebook:{"break_markdown":true} -->
+
+modules for working with date and time types: **Date, Time, Date-Time, and NaiveDateTime.**
+
+<!-- livebook:{"break_markdown":true} -->
+
+**Date**
+
+```elixir
+# date can be created with the ~D sigil, with days/months/years separated by "-"
+
+date = ~D[2022-01-31]
+dateMinusone = ~D[2022-01-30]
+
+# really easy to add dates
+Date.add(date, dateMinusone.day)
+# $ ~D[2022-03-02]
+
+# can be retrieved by its individual fields
+
+date.year
+# $ 2022
+
+date.month
+# $ 1
+
+date.day
+# $ 31
+```
+
+**Time**
+
+```elixir
+# Time can be created with the ~T sigil, with hour:minutes:seconds.microseconds formating
+
+time = ~T[11:29:12.0007]
+# $ ~T[11:29:12.0007]
+
+# as with dates, can be retrieved by its individual fields
+
+time.hour
+# $ 11
+
+time.microsecond
+# $ {700, 4}
+# returns a tulpe with some kind of cientific notation, I guess
+```
+
+**DateTime and NaiveDateTime**
+
+```elixir
+# The naive version can be created with the ~N sigil :
+# with year-month-day hour:minute:second.microsecond formating
+
+naive_DT = ~N[2022-01-30 10:26:12.02]
+# $ ~N[2022-01-30 10:26:12.02]
+
+# Datetime format does not have a dedicated sigil, so it can be created using de DateTime Module
+# when parsing to a DateTime format, it recieves a timezone arg
+nonNaive_DT = DateTime.from_naive!(naive_DT, "Etc/UTC")
+# $ ~U[2022-01-30 10:26:12.02Z]
+# what does de ~U sigil means
+# A: its a way of creating DateTime, maybe it wasnt around when the book was writen
+
+nonNaive_DT.time_zone
+# $ "Etc/UTC"
+```
+
+**IO Lists**
+
+<!-- livebook:{"break_markdown":true} -->
+
+An IO list is a special sort of list that's useful for incrementally building output that will 
+be forwarded to an I/O device, such as a network or a file. Each element of an IO list 
+must be one of the following:<br>
+
+<br />
+
+.   An integer in the range of 0 to 255<br>
+.   A binary<br>
+.   An IO list<br>
+
+<br />
+
+IO list is a deeply nested structure in which leaf elements are plain 
+bytes
+
+```elixir
+iolist = [[['H', 'e'], 'llo,'], " worl", "d"]
+# $ [[['H', 'e'], 'llo,'], " worl", "d"]
+
+IO.puts(iolist)
+# $ Hello, world
+
+# It works like this because under the hood it flattens the list, IO list are usefull when 
+# you need to incrementally build a stream of bytes
+
+iolist = []
+iolist = [iolist, "This"]
+iolist = [iolist, " is"]
+iolist = [iolist, " an"]
+iolist = [iolist, " IO list"]
+# $ [[[[[], "This"], "is"], "an"], "IO list"]
+
+IO.puts(iolist)
+
+# obs, when you put more than one IO.puts into the code chunk, it prints all of them in a sequential order
+```
