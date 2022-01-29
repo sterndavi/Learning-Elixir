@@ -1,0 +1,228 @@
+# 2022 01 29
+
+## CONTROL FLOW
+
+**The Match operator**
+
+```elixir
+# The basic:
+
+person = {"bob", 25}
+# $ {"bob", 25}
+
+# Matching Tuples
+
+{name, age} = {"Bob", 25}
+# $ {"Bob", 25}
+
+name |> IO.puts()
+# $ "Bob"
+
+age |> IO.puts()
+# $ 25
+
+# can be useful when used with functions that return a tuple
+
+{date, time} = :calendar.local_time()
+# $ {{2022, 1, 29}, {14, 57, 16}}
+
+# it can be further decomposed
+
+{year, month, day} = date
+# $ {2022, 1, 29}
+
+{hour, minute, second} = time
+# $ {14, 59, 50}
+```
+
+```elixir
+person = {:person, "Bob", 25}
+
+{:person, name, age} = person
+```
+
+**Anonymous variable**
+
+```elixir
+# When you dont that the whole output, you can use _ to match it
+
+# extracting only the time from .local_time
+{_, time} = :calendar.local_time()
+# $ {{2022, 1, 29}, {15, 9, 15}}
+
+time
+# $ {15, 9, 30}
+
+{_, {hour, _, _}} = :calendar.local_time()
+# $ {{2022, 1, 29}, {15, 9, 15}}
+
+hour
+# $ 15
+```
+
+```elixir
+# A variable can be referenced multiple times in the same pattern
+
+{amt, amt, amt} = {256, 256, 256}
+# $ {256, 256, 256}
+
+# but only if the match is true
+
+{amt, amt, amt} = {256, 256, 127}
+# $ ** (MatchError) no match of right hand side value: {256, 256, 127}
+```
+
+**Pin Operator** (**^**)
+
+```elixir
+expected_name = "Bob"
+
+{^expected_name, _} = {"Bob", 25}
+# $ {"Bob", 25}
+
+{^expected_name, _} = {"Alice", 30}
+# $ ** (MatchError) no match of right hand side value: {"Alice", 30}
+
+# Using ^expected_name in patterns says that you expect the value of the variable 
+# expected_name to be in the appropriate position in the right-side term. In this examaple, it would be the same as if you used the hard-coded pattern {"Bob", _}. Therefore, 
+# the first match succeeds, but the second one fails
+```
+
+```elixir
+# matching work the same way with lists
+
+[head | tail] = [1, 2, 3, 5, 7, 11, 13, 17]
+
+head
+# $ 1
+
+tail
+# $ [2, 3, 5, 7, 11, 13, 17]
+
+# calculating the smallest element in a list 
+[min | _] = Enum.sort([3, 2, 1])
+# $ 1
+```
+
+```elixir
+# Matching Map
+
+%{name: name, age: age} = %{name: "Bob", age: 25}
+# $ %{age: 25, name: "Bob"}
+
+name
+# $ "Bob"
+
+age
+# $ 25
+```
+
+```elixir
+command = "ping www.example.com"
+# "ping www.example.com"
+
+"ping " <> url = command
+# "ping www.example.com"
+
+url
+# $ www.example.com
+```
+
+```elixir
+a = 1 + 3
+
+a = b = 1 + 3
+
+date_time = {_, {hour, _, _}} = :calendar.local_time()
+```
+
+**Matching with functions**
+
+```elixir
+# you can specify a tulpe as an argument
+defmodule Retangle do
+  def area({a, b}) do
+    a * b
+  end
+end
+```
+
+```elixir
+# it will only accept a tulpe with n elements defined by the function
+
+Retangle.area({2, 4})
+```
+
+```elixir
+# Multiclause functions
+
+defmodule Geometry do
+  def area({:retangle, a, b}) do
+    a * b
+  end
+
+  def area({:square, a}) do
+    a * a
+  end
+
+  def area({:circle, r}) do
+    r * r * 3.14
+  end
+end
+```
+
+```elixir
+Geometry.area({:retangle, 4, 5})
+# $ 20
+
+Geometry.area({:square, 5})
+# $ 25
+
+Geometry.area({:circle, 2.5})
+# $ 19.625
+```
+
+```elixir
+# You can capture the funcion by using **&Module.fun/arity**
+
+fun = &Geometry.area/1
+# $ &Geometry.area/1
+
+fun.({:circle, 2.5})
+# $ 19.625
+```
+
+```elixir
+# Multiclause functions with error catching
+
+defmodule Geometry do
+  def area({:retangle, a, b}) do
+    a * b
+  end
+
+  def area({:square, a}) do
+    a * a
+  end
+
+  def area({:circle, r}) do
+    r * r * 3.14
+  end
+
+  def area(unknown) do
+    {:error, {:unknown_shape, unknown}}
+  end
+end
+```
+
+```elixir
+Geometry.area({:triangle, 1, 2, 3})
+# $ {:error, {:unknown_shape, {:triangle, 1, 2, 3}}}
+```
+
+```elixir
+
+```
+
+```elixir
+
+```
