@@ -1,0 +1,130 @@
+# 2022 01 30
+
+## Guards
+
+```elixir
+# Writing a function that accepts a number and returns and atom atesting if it is a negative, a zero or a positive number
+
+defmodule TestNum do
+  def test(x) when x < 0 do
+    :negative
+  end
+
+  def test(0), do: :zero
+
+  def test(x) when x > 0 do
+    :positive
+  end
+end
+```
+
+```elixir
+TestNum.test(-1)
+# $ :negative
+
+TestNum.test(0)
+# $ :zero
+
+TestNum.test(1)
+# $ :positive
+
+# !!!!!!!
+TestNum.test("Astring")
+# $ :positive
+
+# this works cause in elixir, terms can be compared with > < even if they're a diferent type
+# Ordering: number < atom < reference < fun < port < pid < tuple < map < list < bitstring (binary)
+```
+
+```elixir
+# To fix this issue we'll have to make that x can only be a numeric value
+
+defmodule TestNum do
+  def test(x) when is_number(x) and x < 0 do
+    :negative
+  end
+
+  def test(0), do: :zero
+
+  def test(x) when is_number(x) and x > 0 do
+    :positive
+  end
+end
+```
+
+```elixir
+TestNum.test(1)
+# $ :positive
+
+TestNum.test(:an_atom)
+# $ ** (FunctionClauseError) no function clause matching in TestNum.test/1    
+#    
+#    The following arguments were given to TestNum.test/1:
+#    
+#        # 1
+#        :an_atom
+#    
+#    #cell:4: TestNum.test/1
+
+# fix'ed
+```
+
+These are some examples of operators and functions allowed in guards:<br>
+
+<br />
+
+* Comparison operators (==, !=, ===, !==, >, <, <=, >=)<br>
+* Boolean operators (and, or) and negation operators (not, !)<br>
+* Arithmetic operators (+, -, *, /)<br>
+* Type-check functions from the Kernel module (for example, is_number/1, is_atom/1, and so on)<br>
+  <br>
+  You can find the complete up-to-date list at https://hexdocs.pm/elixir/guards.html.
+
+```elixir
+# In some cases, a function used in a guard may cause an error to be raised. 
+
+defmodule ListHelper do
+  def smallest(list) when length(list) > 0 do
+    Enum.min(list)
+  end
+
+  def smallest(_), do: {:error, :invalid_argument}
+end
+
+ListHelper.smallest([1, 2, 3])
+# $ 1
+
+ListHelper.smallest(123)
+# $ {:error, :invalid_argument}
+```
+
+## Multiclause Lambdas
+
+```elixir
+# Remember lambdas????? this is them now, feel old yet???
+
+double = fn x -> x * 2 end
+
+double.(3)
+# $ 3
+```
+
+```elixir
+# remaking the test function as a anonymous function
+
+test_num = fn
+  x when is_number(x) and x < 0 ->
+    :negative
+
+  0 ->
+    :zero
+
+  x when is_number(x) and x > 0 ->
+    :positive
+end
+
+test_num.(2)
+# $ :positive
+```
+
+## Conditionals
