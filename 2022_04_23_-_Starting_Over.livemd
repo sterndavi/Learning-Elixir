@@ -1,4 +1,4 @@
-# 23 /04 - starting over
+# 23/04 - 24/04 - starting over
 
 ## Section
 
@@ -152,7 +152,7 @@ warning: redefining @moduledoc attribute previously set at line 2
   190422 coming back.livemd#cell:6: Circle (module)
 
 warning: redefining @moduledoc attribute previously set at line 6
-  190422 coming back.livemd#cell:12: Circle (module)
+  190422 coming back.livemd#cell:13: Circle (module)
 
 ```
 
@@ -433,7 +433,7 @@ false
 <!-- livebook:{"output":true} -->
 
 ```
-{{2022, 4, 23}, {16, 12, 38}}
+{{2022, 4, 24}, {11, 58, 30}}
 ```
 
 ```elixir
@@ -788,12 +788,6 @@ end
 Exercise.leng([1, 2, 3, 4, 5, 6])
 ```
 
-<!-- livebook:{"output":true} -->
-
-```
-6
-```
-
 ```elixir
 # exercise: write a recursive function that takes 2 arguments: from and to, and returns
 # a list with all values in the range
@@ -848,4 +842,364 @@ Enum.filter(
 
 ```
 [1, 3, 5, 7, 9]
+```
+
+```elixir
+Enum.reduce(
+  # elements to reduce
+  [1, 2, 3],
+  # initial value of the acumulator
+  0,
+  # anonymous functon that sums every element of the list
+  fn element, sum -> sum + element end
+)
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+6
+```
+
+```elixir
+# this example also works when there's also non numbers in the list
+Enum.reduce(
+  [1, 2, "not a number", :atom, 3],
+  0,
+  fn
+    element, sum when is_number(element) ->
+      sum + element
+
+    _, sum ->
+      sum
+  end
+)
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+6
+```
+
+```elixir
+defmodule NumHelper do
+  def sum_nums(enumerable) do
+    Enum.reduce(enumerable, 0, &add_num/2)
+  end
+
+  defp add_num(num, sum) when is_number(num), do: sum + num
+  defp add_num(_, sum), do: sum
+end
+
+NumHelper.sum_nums([1, 2, 3])
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+6
+```
+
+**comprehensions**
+
+```elixir
+for x <- [1, 2, 3] do
+  x * x
+end
+
+memes
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+[1, 4, 9]
+```
+
+```elixir
+for x <- [1, 2, 3], y <- [1, 2, 3], do: {x, y, x * y}
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+[{1, 1, 1}, {1, 2, 2}, {1, 3, 3}, {2, 1, 2}, {2, 2, 4}, {2, 3, 6}, {3, 1, 3}, {3, 2, 6}, {3, 3, 9}]
+```
+
+```elixir
+for x <- 1..10, y <- 1..9, do: {x, y, x * y}
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+[
+  {1, 1, 1},
+  {1, 2, 2},
+  {1, 3, 3},
+  {1, 4, 4},
+  {1, 5, 5},
+  {1, 6, 6},
+  {1, 7, 7},
+  {1, 8, 8},
+  {1, 9, 9},
+  {2, 1, 2},
+  {2, 2, 4},
+  {2, 3, 6},
+  {2, 4, 8},
+  {2, 5, 10},
+  {2, 6, 12},
+  {2, 7, 14},
+  {2, 8, 16},
+  {2, 9, 18},
+  {3, 1, 3},
+  {3, 2, 6},
+  {3, 3, 9},
+  {3, 4, 12},
+  {3, 5, 15},
+  {3, 6, 18},
+  {3, 7, 21},
+  {3, 8, 24},
+  {3, 9, 27},
+  {4, 1, 4},
+  {4, 2, 8},
+  {4, 3, 12},
+  {4, 4, 16},
+  {4, 5, 20},
+  {4, 6, 24},
+  {4, 7, 28},
+  {4, 8, 32},
+  {4, 9, 36},
+  {5, 1, 5},
+  {5, 2, 10},
+  {5, 3, 15},
+  {5, 4, 20},
+  {5, 5, 25},
+  {5, 6, 30},
+  {5, 7, 35},
+  {5, 8, 40},
+  {5, 9, 45},
+  {6, 1, 6},
+  {6, 2, 12},
+  {6, 3, ...},
+  {6, ...},
+  {...},
+  ...
+]
+```
+
+```elixir
+# defines the ranges
+multiplication_table =
+  for x <- 1..9,
+      y <- 1..9,
+      # into:%{} specifies where the values will be stored, in this case, a map
+      into: %{} do
+    # a map where the keys are the multiplicants, and the value are the result
+    {{x, y}, x * y}
+  end
+
+# searching the table with a combination of 2 numbers will return the product
+multiplication_table[{6, 9}]
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+54
+```
+
+```elixir
+multiplication_table_filtered =
+  for x <- 1..9,
+      y <- 1..9,
+      # filtering is also possible
+      x <= y,
+      into: %{} do
+    {{x, y}, x * y}
+  end
+
+multiplication_table_filtered[{8, 7}]
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+nil
+```
+
+**streams**
+
+```elixir
+employees = ["Alice", "Bob", "John"]
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+["Alice", "Bob", "John"]
+```
+
+```elixir
+Enum.with_index(employees)
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+[{"Alice", 0}, {"Bob", 1}, {"John", 2}]
+```
+
+```elixir
+employees
+|> Enum.with_index()
+|> Enum.each(fn {employee, index} ->
+  IO.puts("#{index + 1}. #{employee}")
+end)
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+1. Alice
+2. Bob
+3. John
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+:ok
+```
+
+```elixir
+stream =
+  [1, 2, 3]
+  |> Stream.map(fn x -> x * 2 end)
+  |> Enum.to_list()
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+[2, 4, 6]
+```
+
+```elixir
+Enum.take(stream, 2)
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+[2, 4]
+```
+
+```elixir
+employees
+|> Stream.with_index()
+|> Enum.each(fn {employee, index} ->
+  IO.puts("#{index + 1}. #{employee}")
+end)
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+1. Alice
+2. Bob
+3. John
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+:ok
+```
+
+```elixir
+[9, -1, "foo", 25, 49]
+|> Stream.filter(&(is_number(&1) and &1 > 0))
+|> Stream.map(&{&1, :math.sqrt(&1)})
+|> Stream.with_index()
+|> Enum.each(fn {{input, result}, index} ->
+  IO.puts("#{index + 1}. sqrt(#{input}) = #{result}")
+end)
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+1. sqrt(9) = 3.0
+2. sqrt(25) = 5.0
+3. sqrt(49) = 7.0
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+:ok
+```
+
+```elixir
+# exercise 1 streams
+path = "C:/Users/Davi/Desktop/test.txt"
+
+defmodule ExerciseStreams do
+  defp filtered_lines(path) do
+    path
+    |> File.stream!()
+    |> Stream.map(&String.replace(&1, "\n", ""))
+  end
+
+  def line_length(path) do
+    path
+    |> filtered_lines()
+    |> Enum.map(&String.length/1)
+  end
+end
+
+ExerciseStreams.line_length(path)
+```
+
+```elixir
+defmodule EnumStreams do
+  defp filtered_lines!(path) do
+    path
+    |> File.stream!()
+    |> Stream.map(&String.replace(&1, "\n", ""))
+  end
+
+  def lines_lengths!(path) do
+    path
+    |> filtered_lines!()
+    |> Enum.map(&String.length/1)
+  end
+end
+```
+
+**data abstractions**
+
+```elixir
+# instances the abstraction
+days =
+  MapSet.new()
+  # modifies
+  |> MapSet.put(:monday)
+  # modifies
+  |> MapSet.put(:tuesday)
+
+# query
+MapSet.member?(days, :monday)
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+true
+```
+
+```elixir
+
 ```
