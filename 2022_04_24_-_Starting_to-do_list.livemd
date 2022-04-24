@@ -1,0 +1,62 @@
+# 24/04 starting todo list
+
+## Untitled
+
+```elixir
+defmodule MultiDict do
+  def new(), do: %{}
+
+  def add(dict, key, value) do
+    Map.update(dict, key, [value], &[value | &1])
+  end
+
+  def get(dict, key) do
+    Map.get(dict, key, [])
+  end
+end
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+{:module, MultiDict, <<70, 79, 82, 49, 0, 0, 6, ...>>, {:get, 2}}
+```
+
+```elixir
+defmodule TodoList do
+  def new(), do: MultiDict.new()
+
+  def add_entry(todo_list, entry) do
+    MultiDict.add(todo_list, entry.date, entry)
+  end
+
+  def entries(todo_list, date) do
+    MultiDict.get(todo_list, date)
+  end
+end
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+{:module, TodoList, <<70, 79, 82, 49, 0, 0, 6, ...>>, {:entries, 2}}
+```
+
+```elixir
+list2 = TodoList.new()
+
+list2 = TodoList.add_entry(list2, %{date: ~D[2022-04-25], title: "trabalhar"})
+list2 = TodoList.add_entry(list2, %{date: ~D[2022-04-24], title: "trabalhar mais ainda"})
+
+TodoList.entries(list2, ~D[2022-04-25])
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+[%{date: ~D[2022-04-25], title: "trabalhar"}]
+```
+
+```elixir
+Fracti
+```
