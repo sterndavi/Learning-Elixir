@@ -1,0 +1,251 @@
+# 24/04 starting todo list
+
+## Untitled
+
+```elixir
+defmodule MultiDict do
+  def new(), do: %{}
+
+  def add(dict, key, value) do
+    Map.update(dict, key, [value], &[value | &1])
+  end
+
+  def get(dict, key) do
+    Map.get(dict, key, [])
+  end
+end
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+{:module, MultiDict, <<70, 79, 82, 49, 0, 0, 7, ...>>, {:get, 2}}
+```
+
+```elixir
+defmodule TodoList do
+  def new(), do: MultiDict.new()
+
+  def add_entry(todo_list, entry) do
+    MultiDict.add(todo_list, entry.date, entry)
+  end
+
+  def entries(todo_list, date) do
+    MultiDict.get(todo_list, date)
+  end
+end
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+{:module, TodoList, <<70, 79, 82, 49, 0, 0, 7, ...>>, {:entries, 2}}
+```
+
+```elixir
+list2 = TodoList.new()
+
+list2 = TodoList.add_entry(list2, %{date: ~D[2022-04-25], title: "trabalhar"})
+list2 = TodoList.add_entry(list2, %{date: ~D[2022-04-24], title: "trabalhar mais ainda"})
+
+TodoList.entries(list2, ~D[2022-04-25])
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+[%{date: ~D[2022-04-25], title: "trabalhar"}]
+```
+
+```elixir
+Enum.flat_map()
+```
+
+```elixir
+# instancing a fraction
+
+defmodule Fraction do
+  defstruct a: nil, b: nil
+
+  def new(a, b) do
+    %Fraction{a: a, b: b}
+  end
+
+  def value(%Fraction{a: a, b: b}) do
+    a / b
+  end
+
+  def value_slower(fraction) do
+    fraction.a / fraction.b
+  end
+
+  def add(%Fraction{a: a1, b: b1}, %Fraction{a: a2, b: b2}) do
+    new(
+      a1 * b2 + a2 * b1,
+      b2 * b1
+    )
+  end
+end
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+{:module, Fraction, <<70, 79, 82, 49, 0, 0, 11, ...>>, {:add, 2}}
+```
+
+```elixir
+one_half = %Fraction{a: 1, b: 2}
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+%Fraction{a: 1, b: 2}
+```
+
+```elixir
+Fraction.add(Fraction.new(1, 2), Fraction.new(1, 4)) |> Fraction.value()
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+0.75
+```
+
+```elixir
+mapset = MapSet.new([:monday, :tuesday, :wednesday])
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+#MapSet<[:monday, :tuesday, :wednesday]>
+```
+
+```elixir
+IO.puts(inspect(mapset, structs: false))
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+%{__struct__: MapSet, map: %{monday: [], tuesday: [], wednesday: []}, version: 2}
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+:ok
+```
+
+```elixir
+Fraction.new(1, 4)
+|> IO.inspect()
+|> Fraction.add(Fraction.new(1, 4))
+|> IO.inspect()
+|> Fraction.add(Fraction.new(1, 2))
+|> IO.inspect()
+|> Fraction.value()
+|> IO.inspect()
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+%Fraction{a: 1, b: 4}
+%Fraction{a: 8, b: 16}
+%Fraction{a: 32, b: 32}
+1.0
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+1.0
+```
+
+```elixir
+defmodule TodoList do
+  defstruct auto_id: 1, entries: %{}
+
+  def new(), do: %TodoList{}
+
+  # adds new entries to the entries list
+  def add_entry(todo_list, entry) do
+    entry = Map.put(entry, :id, todo_list.auto_id)
+
+    new_entries =
+      Map.put(
+        todo_list.entries,
+        todo_list.auto_id,
+        entry
+      )
+
+    %TodoList{todo_list | entries: new_entries, auto_id: todo_list.auto_id + 1}
+  end
+
+  def entries(todo_list, date) do
+    todo_list.entries
+    |> Stream.filter(fn {_, entry} -> entry.date == date end)
+    |> Enum.map(fn {_, entry} -> entry end)
+  end
+
+  def update_entry(todo_list, entry_id, updater_fun) do
+    case Map.fetch!(todo_list.entries, entry_id) do
+      :error ->
+        todo_list
+
+      {:ok, old_entry} ->
+        new_entry = updater_fun.(old_entry)
+        new_entries = Map.put(todo_list.entries, new_entry.id, new_entry)
+        %TodoList{todo_list | entries: new_entries}
+    end
+  end
+end
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+{:module, TodoList, <<70, 79, 82, 49, 0, 0, 16, ...>>, {:update_entry, 3}}
+```
+
+```elixir
+todo_list =
+  TodoList.new()
+  |> TodoList.add_entry(%{date: ~D[2022-04-30], title: "resting"})
+  |> TodoList.add_entry(%{date: ~D[2022-05-02], title: "working"})
+  |> TodoList.add_entry(%{date: ~D[2022-05-02], title: "asking for a raise at work"})
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+%TodoList{
+  auto_id: 4,
+  entries: %{
+    1 => %{date: ~D[2022-04-30], id: 1, title: "resting"},
+    2 => %{date: ~D[2022-05-02], id: 2, title: "working"},
+    3 => %{date: ~D[2022-05-02], id: 3, title: "asking for a raise at work"}
+  }
+}
+```
+
+```elixir
+TodoList.entries(todo_list, ~D[2022-05-02])
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+[
+  %{date: ~D[2022-05-02], id: 2, title: "working"},
+  %{date: ~D[2022-05-02], id: 3, title: "asking for a raise at work"}
+]
+```
+
+```elixir
+TodoList.update_entry(todo_list, 1, &Map.put(&1, :date, ~D[2022-05-01]))
+```
