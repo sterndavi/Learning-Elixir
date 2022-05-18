@@ -1,0 +1,52 @@
+# Trying out livebook 0.6 and vegalite
+
+```elixir
+Mix.install([
+  {:explorer, "~> 0.1.1"},
+  {:kino, "~> 0.6.1"},
+  {:vega_lite, "~> 0.1.4"},
+  {:kino_vega_lite, "~> 0.1.1"}
+])
+```
+
+## Section
+
+```elixir
+
+```
+
+```elixir
+df = Explorer.Datasets.iris()
+```
+
+```elixir
+alias Explorer.DataFrame
+alias Explorer.Series
+```
+
+```elixir
+DataFrame.table(df)
+df = df |> DataFrame.to_map()
+```
+
+```elixir
+VegaLite.new(title: "Test")
+|> VegaLite.data_from_values(df, only: ["petal_length", "petal_width", "species"])
+|> VegaLite.facet(
+  [field: "species"],
+  VegaLite.new()
+  |> VegaLite.mark(:point)
+  |> VegaLite.encode_field(:x, "petal_lenght")
+  |> VegaLite.encode_field(:y, "petal_width")
+)
+```
+
+<!-- livebook:{"attrs":{"chart_title":null,"height":null,"layers":[{"chart_type":"bar","color_field":null,"color_field_aggregate":null,"color_field_type":null,"data_variable":"df","x_field":"petal_length","x_field_aggregate":"mean","x_field_type":null,"y_field":"petal_width","y_field_aggregate":null,"y_field_type":null}],"vl_alias":"Elixir.VegaLite","width":null},"kind":"Elixir.KinoVegaLite.ChartCell","livebook_object":"smart_cell"} -->
+
+```elixir
+VegaLite.new()
+|> VegaLite.data_from_values(df, only: ["petal_length", "petal_width"])
+|> VegaLite.mark(:bar)
+|> VegaLite.encode_field(:x, "petal_length", aggregate: :mean)
+|> VegaLite.encode_field(:y, "petal_width")
+```
